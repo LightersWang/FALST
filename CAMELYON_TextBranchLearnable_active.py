@@ -43,14 +43,15 @@ class Active_FewShotBag_FewShotInstance(torch.utils.data.Dataset):
                 self.bag_instance_shot_indexes.append((bag_shot_idx, 0, [], []))
             # actively select few-shot patches from positive slides
             else:
-                all_pos_instance_idx = np.where(ds.slide_patch_label_all[bag_shot_idx] == 1)[0]
-                all_neg_instance_idx = np.where(ds.slide_patch_label_all[bag_shot_idx] == 0)[0]
-                all_instance_idx = np.concatenate([all_pos_instance_idx, all_neg_instance_idx])
+                all_instance_feat = ds.slide_feat_all[bag_shot_idx]
+                all_instance_idx = np.arange(ds.slide_patch_label_all[bag_shot_idx].shape[0])
 
                 if args.patch_active_method.lower() == 'oracle':
+                    all_pos_instance_idx = np.where(ds.slide_patch_label_all[bag_shot_idx] == 1)[0]
+                    all_neg_instance_idx = np.where(ds.slide_patch_label_all[bag_shot_idx] == 0)[0]
                     instance_few_shot_pos_idx, instance_few_shot_neg_idx = oracle_patch_selector(num_instance_shot, all_pos_instance_idx, all_neg_instance_idx)
                 else:
-                    instance_few_shot_pos_idx, instance_few_shot_neg_idx = patch_selector(args, num_instance_shot, all_instance_idx)
+                    instance_few_shot_pos_idx, instance_few_shot_neg_idx = patch_selector(args, num_instance_shot, all_instance_idx, all_instance_feat)
 
                 self.bag_instance_shot_indexes.append((bag_shot_idx, 1, instance_few_shot_pos_idx, instance_few_shot_neg_idx))
 
