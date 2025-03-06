@@ -1,2 +1,2 @@
-from .slide_selection import slide_selector
-from .patch_selection import patch_selector, oracle_patch_selector
+from .slide_selection import *
+from .patch_selection import *

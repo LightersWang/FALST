@@ -184,10 +184,10 @@ def fast(args, name, train_loader_bag, val_ds_return_bag):
     train_loader_fewShotInstance = torch.utils.data.DataLoader(train_ds_fewShotInstance, batch_size=1024, shuffle=True, num_workers=0, drop_last=False)
     val_loader_allInstance = torch.utils.data.DataLoader(val_ds_allInstance, batch_size=1024, shuffle=False, num_workers=0, drop_last=False)
 
-    optimizer = Optimizer_TextBranch(model=model_text, train_loader=train_loader_fewShotInstance, test_loader=val_loader_allInstance,
-                          optimizer=optimizer_text_branch,
-                          writer=writer, num_epoch=50,
-                          dev=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
+    optimizer = Optimizer_TextBranch(
+        model=model_text, train_loader=train_loader_fewShotInstance, test_loader=val_loader_allInstance,
+        optimizer=optimizer_text_branch, writer=writer, num_epoch=50,
+        dev=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
     optimizer.optimize()
     classifer_pathology_after_optimizing = model_text.get_classifier().detach()
     del model_text, instance_prompt_learner

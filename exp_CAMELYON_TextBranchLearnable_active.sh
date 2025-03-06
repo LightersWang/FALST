@@ -1,9 +1,9 @@
 #!/bin/bash
 
 for SLIDE_AL in random; do
-    for PATCH_AL in coreset kmedoids; do
+    for PATCH_AL in random kmeans coreset ra falst; do
         DATE=$(date +"%Y%m%d_%H%M%S")
-        ROOT_DIR=/media/temp/DATA21/Project_FAST/CODE/FALST/log/CAMELYON_TextBranchLearnable/Slide_${SLIDE_AL}_Patch_${PATCH_AL}_${DATE}
+        ROOT_DIR=/media/temp/DATA21/Project_FAST/CODE/FALST/log/CAMELYON_TextBranchLearnable_202503/Slide_${SLIDE_AL}_Patch_${PATCH_AL}_${DATE}
         echo ${ROOT_DIR}
         mkdir -p ${ROOT_DIR}/4_InstanceShot
         mkdir -p ${ROOT_DIR}/16_InstanceShot

@@ -327,8 +327,8 @@ class CAMELYON_16_5x_feat(torch.utils.data.Dataset):
             idx_from_same_slide = np.nonzero(idx_from_same_slide)[0]
 
             self.slide_feat_all.append(self.all_patches[idx_from_same_slide])
-            if self.patch_corresponding_slide_label[idx_from_same_slide].max() != self.patch_corresponding_slide_label[
-                idx_from_same_slide].min():
+            if (self.patch_corresponding_slide_label[idx_from_same_slide].max() != 
+                self.patch_corresponding_slide_label[idx_from_same_slide].min()):
                 raise
             self.slide_label_all.append(self.patch_corresponding_slide_label[idx_from_same_slide].max())
             self.slide_patch_label_all.append(self.patch_label[idx_from_same_slide])

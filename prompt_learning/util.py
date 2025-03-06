@@ -51,13 +51,13 @@ def clip_classifier(prompts, clip_model):
     with torch.no_grad():
         clip_weights = []
         for prompt_i in prompts:
-            texts = clip.tokenize(prompt_i).cuda()
-            class_embeddings = clip_model.encode_text(texts)
-            class_embeddings /= class_embeddings.norm(dim=-1, keepdim=True)
+            texts = clip.tokenize(prompt_i).cuda()                              # (2, 77)
+            class_embeddings = clip_model.encode_text(texts)                    # (2, 1024)
+            class_embeddings /= class_embeddings.norm(dim=-1, keepdim=True)     # (2, 1024)
             clip_weights.append(class_embeddings)
-        clip_weights = torch.stack(clip_weights)
-        clip_weights = clip_weights.mean(dim=0)
-        clip_weights /= clip_weights.norm(dim=-1, keepdim=True)
+        clip_weights = torch.stack(clip_weights)                # (20, 2, 1024)
+        clip_weights = clip_weights.mean(dim=0)                 # (2, 1024)
+        clip_weights /= clip_weights.norm(dim=-1, keepdim=True) # (2, 1024)
     return clip_weights
 
 
