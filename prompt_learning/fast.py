@@ -146,14 +146,22 @@ def run_tip_adapter_key_value_learnable(cache_keys_unlabeled, cache_values_unlab
 
 def fast(args, name, train_loader_bag, val_ds_return_bag):
     # Build cache model through iterating over few-shot training set
-    cache_keys_unlabeled, cache_values_unlabeled, cache_corresponding_slide_label_unlabeled, cache_corresponding_slide_index_unlabeled, \
-        cache_keys_labeled, cache_values_labeled, cache_corresponding_slide_label_labeled, cache_corresponding_slide_index_labeled, cache_values_unlabeled_GT = \
-        build_MIL_Adapter_cache_model(train_loader_bag, downsample_neg_instances=args.downsample_neg_instances)
+    (cache_keys_unlabeled, 
+    cache_values_unlabeled, 
+    cache_corresponding_slide_label_unlabeled, 
+    cache_corresponding_slide_index_unlabeled, 
+    cache_keys_labeled, 
+    cache_values_labeled, 
+    cache_corresponding_slide_label_labeled, 
+    cache_corresponding_slide_index_labeled, 
+    cache_values_unlabeled_GT) = build_MIL_Adapter_cache_model(train_loader_bag, downsample_neg_instances=args.downsample_neg_instances)
     test_features, test_labels = torch.from_numpy(val_ds_return_bag.all_patches).cuda(), torch.from_numpy(val_ds_return_bag.patch_label).cuda()
 
     # Setup CLIP model and prompts
     clip_model = load_clip_to_cpu(backbone_name='RN50').cuda()
-    prompts_common_templates, prompts_pathology_template, prompts_pathology_template_withDescription = get_patch_level_prompts_forCAMELYON(tissue_type='simple')
+    (prompts_common_templates, 
+    prompts_pathology_template, 
+    prompts_pathology_template_withDescription) = get_patch_level_prompts_forCAMELYON(tissue_type='simple')
     classifer_common_templates = clip_classifier(prompts_common_templates, clip_model)
     classifer_pathology_template = clip_classifier(prompts_pathology_template, clip_model)
     classifer_pathology_template_withDescription = clip_classifier(prompts_pathology_template_withDescription, clip_model)

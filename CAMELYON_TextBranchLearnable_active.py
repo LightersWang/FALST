@@ -34,7 +34,8 @@ class Active_FewShotBag_FewShotInstance(torch.utils.data.Dataset):
             else:
                 idx_category_i_few_shot = idx_category_i_all.tolist()
             self.bag_shot_indexes += idx_category_i_few_shot
-
+        print(f'selected slides: {self.bag_shot_indexes}')
+        
         # 2. generate corresponding instance few shot idx for each positive bag
         self.bag_instance_shot_indexes = []
         if args.patch_active_method.lower() == 'falst':
@@ -84,6 +85,15 @@ class Active_FewShotBag_FewShotInstance(torch.utils.data.Dataset):
                         instance_few_shot_label = ds.slide_patch_label_all[bag_shot_idx][instance_few_shot_idx]
                         instance_few_shot_pos_idx = instance_few_shot_idx[instance_few_shot_label == 1]
                         instance_few_shot_neg_idx = instance_few_shot_idx[instance_few_shot_label == 0]
+                        print(f'num of pos instance: {len(instance_few_shot_pos_idx)}/{num_instance_shot * 2}')
+                        print(f'num of neg instance: {len(instance_few_shot_neg_idx)}/{num_instance_shot * 2}')
+                        
+                        patch_label = ds.slide_patch_label_all[bag_shot_idx]
+                        actual_pos_ratio = patch_label.sum() / patch_label.shape[0]
+                        sampling_pos_ratio = len(instance_few_shot_pos_idx) / (num_instance_shot * 2)
+                        print(f'actual pos num: {patch_label.sum()}')
+                        print(f'actual pos ratio: {actual_pos_ratio}')
+                        print(f'sampling pos ratio: {sampling_pos_ratio}')
                         # if len(instance_few_shot_pos_idx) == 0:
                         #     instance_few_shot_pos_idx = None
 
@@ -127,7 +137,7 @@ def get_parser():
     parser.add_argument('--device', default='0', type=str, help='GPU devices to use for storage and model')
     parser.add_argument('--modeldevice', default='0', type=str, help='GPU numbers on which the CNN runs')
     parser.add_argument('--workers', default=0, type=int,help='number workers (default: 6)')
-    parser.add_argument('--comment', default='Debug_MILCLIP', type=str, help='name for tensorboardX')
+    parser.add_argument('--comment', default='FALST', type=str, help='name for tensorboardX')
     parser.add_argument('--save_intv', default=1, type=int, help='save stuff every x epochs (default: 1)')
     parser.add_argument('--log_iter', default=200, type=int, help='log every x-th batch (default: 200)')
     parser.add_argument('--seed', default=42, type=int, help='random seed')
