@@ -26,14 +26,20 @@ class Active_FewShotBag_FewShotInstance(torch.utils.data.Dataset):
         self.bag_shot_indexes = []
         ds_label = self.ds.slide_label_all
         category = np.unique(ds_label)
-        for category_i in category:
-            idx_category_i_all = np.where(ds_label == category_i)[0]
-            if self.num_bag_shot != -1:
-                # actively select slide of each category
-                idx_category_i_few_shot = al.slide_selector(args, self.num_bag_shot, idx_category_i_all)
-            else:
-                idx_category_i_few_shot = idx_category_i_all.tolist()
-            self.bag_shot_indexes += idx_category_i_few_shot
+        
+        if args.slide_active_method.lower() == 'selected':
+            pos_slides = [25, 58, 65, 91, 84, 169, 5, 34, 86, 96, 238, 29, 202, 216, 249, 190]
+            neg_slides = [243, 214, 135, 33, 181, 229, 117, 71, 134, 186, 142, 158, 197, 0, 146, 170]
+            self.bag_shot_indexes += pos_slides[:self.num_bag_shot] + neg_slides[:self.num_bag_shot]
+        else:
+            for category_i in category:
+                idx_category_i_all = np.where(ds_label == category_i)[0]
+                if self.num_bag_shot != -1:
+                    # actively select slide of each category
+                    idx_category_i_few_shot = al.slide_selector(args, self.num_bag_shot, idx_category_i_all)
+                else:
+                    idx_category_i_few_shot = idx_category_i_all.tolist()
+                self.bag_shot_indexes += idx_category_i_few_shot
         print(f'selected slides: {self.bag_shot_indexes}')
         
         # 2. generate corresponding instance few shot idx for each positive bag
