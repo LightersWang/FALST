@@ -52,7 +52,8 @@ def falst_patch_selector_v1(args, ds, num_instance_shot, pos_slide_feat_train, n
             'verbose': 10, 
             'covariance_type': 'diag',
             'n_init': 1, 
-            'max_iter': 100
+            'max_iter': 100,
+            'random_state': args.seed
         } 
         pos_density_estimator = GaussianMixture(**gmm_kwargs).fit(pos_slide_feat_train)
         neg_density_estimator = GaussianMixture(**gmm_kwargs).fit(neg_slide_feat_train)
@@ -85,8 +86,8 @@ def falst_patch_selector_v1(args, ds, num_instance_shot, pos_slide_feat_train, n
         assert np.all(pos_patch_ll[pos_patch_idx] == np.sort(pos_patch_ll)[::-1][:num_instance_shot])
         
         # neg patch: log p_pos(x) + log p_neg(x)
-        # neg_patch_ll = neg_likelihood
-        neg_patch_ll = pos_likelihood + neg_likelihood
+        neg_patch_ll = neg_likelihood
+        # neg_patch_ll = pos_likelihood + neg_likelihood
         neg_patch_idx_sorted = np.argsort(neg_patch_ll)[::-1]
         neg_patch_idx = neg_patch_idx_sorted[:num_instance_shot]
         assert np.all(neg_patch_ll[neg_patch_idx] == np.sort(neg_patch_ll)[::-1][:num_instance_shot])
