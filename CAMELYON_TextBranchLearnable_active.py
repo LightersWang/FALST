@@ -152,6 +152,11 @@ def get_parser():
     parser.add_argument('--num_instance_shot', default=16, type=int, help='num of instance few shot')
 
     parser.add_argument('--downsample_neg_instances', default=1.0, type=float, help='downsample neg instance when building cache model')
+    
+    # falst setting
+    parser.add_argument('--gmm_components', default=20, type=int, help='number of GMM components')
+    parser.add_argument('--pos_density_only', default=False, action='store_true', help='use density difference')
+    parser.add_argument('--neg_density_only', default=False, action='store_true', help='use density ratio')
 
     # MIL_CLIP settings
     return parser.parse_args()
