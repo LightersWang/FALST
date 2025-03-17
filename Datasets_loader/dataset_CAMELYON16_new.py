@@ -347,7 +347,9 @@ class CAMELYON_16_5x_feat(torch.utils.data.Dataset):
             patch_corresponding_slide_index = self.patch_corresponding_slide_index[index]
             patch_corresponding_slide_name = self.patch_corresponding_slide_name[index]
 
-            return patch_image_feat, [patch_label, patch_corresponding_slide_label, patch_corresponding_slide_index,
+            return patch_image_feat, [patch_label, 
+                                      patch_corresponding_slide_label, 
+                                      patch_corresponding_slide_index,
                                       patch_corresponding_slide_name], index
 
     def __len__(self):
