@@ -70,6 +70,14 @@ class Active_FewShotBag_FewShotInstance(torch.utils.data.Dataset):
                     neg_slide_feat_train=feat_from_neg_bag,
                     pos_slide_indexes=pos_slide_indexes,
                 )
+            elif args.patch_active_method.lower() == 'falst_v3':
+                bag_instance_shot_indexes_from_pos_slides = al.falst_patch_selector_v3(
+                    args=args, ds=ds,
+                    num_instance_shot=num_instance_shot,
+                    pos_slide_feat_train=feat_from_pos_bag, 
+                    neg_slide_feat_train=feat_from_neg_bag,
+                    pos_slide_indexes=pos_slide_indexes,
+                )
             else:
                 bag_instance_shot_indexes_from_pos_slides = al.falst_patch_selector_v1(
                     args=args, ds=ds,
@@ -77,6 +85,7 @@ class Active_FewShotBag_FewShotInstance(torch.utils.data.Dataset):
                     pos_slide_feat_train=feat_from_pos_bag, 
                     neg_slide_feat_train=feat_from_neg_bag,
                     pos_slide_indexes=pos_slide_indexes,
+                    density_estimator=args.density_estimator
                 )
             self.bag_instance_shot_indexes += bag_instance_shot_indexes_from_pos_slides
                 
@@ -163,7 +172,8 @@ def get_parser():
     parser.add_argument('--downsample_neg_instances', default=1.0, type=float, help='downsample neg instance when building cache model')
     
     # falst setting
-    parser.add_argument('--gmm_components', default=20, type=int, help='number of GMM components')
+    parser.add_argument('--density_estimator', default='gmm', type=str, help='choice of density estimator')
+    parser.add_argument('--gmm_components', default=50, type=int, help='number of GMM components')
     parser.add_argument('--pos_density_only', default=False, action='store_true', help='use density difference')
     parser.add_argument('--neg_density_only', default=False, action='store_true', help='use density ratio')
 
