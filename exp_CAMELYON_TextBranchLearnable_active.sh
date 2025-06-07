@@ -94,14 +94,25 @@
 #     done
 # done
 
+# for SLIDE_AL in random; do
+#     for PATCH_AL in falst; do
+#         DATE=$(date +"%Y%m%d_%H%M%S")
+#         ROOT_DIR=/media/temp/DATA21/Project_FAST/CODE/FALST/log/CAMELYON_TextBranchLearnable_20250318_all_pos/Slide_${SLIDE_AL}_Patch_${PATCH_AL}_gmm50_${DATE}
+#         echo ${ROOT_DIR}
+#         mkdir -p ${ROOT_DIR}/4_InstanceShot
+#         mkdir -p ${ROOT_DIR}/16_InstanceShot
+#         bash /media/temp/DATA21/Project_FAST/CODE/FALST/exp_CAMELYON_TextBranchLearnable_active_fast_all_pos_gmm50_improve.sh ${SLIDE_AL} ${PATCH_AL} ${ROOT_DIR}
+#     done
+# done
+
 for SLIDE_AL in random; do
     for PATCH_AL in falst; do
         DATE=$(date +"%Y%m%d_%H%M%S")
-        ROOT_DIR=/media/temp/DATA21/Project_FAST/CODE/FALST/log/CAMELYON_TextBranchLearnable_20250318_all_pos/Slide_${SLIDE_AL}_Patch_${PATCH_AL}_gmm50_${DATE}
+        ROOT_DIR=/media/temp/DATA21/Project_FAST/CODE/FALST/log/CAMELYON_TextBranchLearnable_20250318_all_pos/Slide_${SLIDE_AL}_Patch_${PATCH_AL}_gmm70_${DATE}
         echo ${ROOT_DIR}
         mkdir -p ${ROOT_DIR}/4_InstanceShot
         mkdir -p ${ROOT_DIR}/16_InstanceShot
-        bash /media/temp/DATA21/Project_FAST/CODE/FALST/exp_CAMELYON_TextBranchLearnable_active_fast_all_pos_gmm50_improve.sh ${SLIDE_AL} ${PATCH_AL} ${ROOT_DIR}
+        bash /media/temp/DATA21/Project_FAST/CODE/FALST/exp_CAMELYON_TextBranchLearnable_active_fast_all_pos_gmm70.sh ${SLIDE_AL} ${PATCH_AL} ${ROOT_DIR}
     done
 done
 

@@ -37,7 +37,7 @@ def search_hp_onlyAlpha(search_scale, search_step, clip_logits, cache_logits, la
 
     print("After searching, setting, alpha: {:.2f}".format(best_alpha))
     print("After searching, the best AUC: {:.4f}.".format(best_auc))
-    return best_auc, best_logits
+    return best_auc, best_logits, best_alpha
 
 
 def attention_functional_batch(query, key, value, batch_size=4096):
@@ -99,6 +99,8 @@ def run_tip_adapter_key_value_learnable(cache_keys_unlabeled, cache_values_unlab
     train_labels = cache_values_labeled
     best_cache_auc_test = 0
     best_cache_logits_test = None
+    best_cache_keys = None
+    best_cache_values = None
 
     for iter in range(epoch):
         cache_values = torch.cat([torch.sigmoid(cache_values_learnable), cache_values_labeled], dim=0)
@@ -127,6 +129,9 @@ def run_tip_adapter_key_value_learnable(cache_keys_unlabeled, cache_values_unlab
                 if tip_test_auc > best_cache_auc_test:
                     best_cache_auc_test = tip_test_auc
                     best_cache_logits_test = cache_logits_test
+                    best_cache_keys = cache_keys.detach().cpu()
+                    best_cache_values = cache_values.detach().cpu()
+                    
             print('Iter: {}, Loss: {:.4f}, Train AUC: {:.4f}, Test AUC: {:.4f}'.format(iter, loss, tip_train_auc, tip_test_auc))
             if writer is not None:
                 writer.add_scalar('train_loss', loss, iter)
@@ -137,9 +142,10 @@ def run_tip_adapter_key_value_learnable(cache_keys_unlabeled, cache_values_unlab
                 # writer.add_histogram('cache_values_learnable_N', torch.sigmoid(cache_values_learnable).detach().cpu()[torch.where(cache_values_unlabeled_GT==0)], iter)
                 writer.add_scalar('cache_values_learnable_AUC', pseudo_label_auc, iter)
 
-    merged_auc, merged_logits = search_hp_onlyAlpha(1, 100, clip_logits_test, best_cache_logits_test, test_labels)
-    return (best_cache_logits_test, clip_logits_test, merged_logits,
-            best_cache_auc_test,    clip_auc,         merged_auc)
+    merged_auc, merged_logits, best_alpha = search_hp_onlyAlpha(1, 100, clip_logits_test, best_cache_logits_test, test_labels)
+    return (best_cache_logits_test, clip_logits_test,   merged_logits,
+            best_cache_auc_test,    clip_auc,           merged_auc,
+            best_cache_keys,        best_cache_values,  best_alpha)
 
 
 # Final FAST Model
@@ -168,7 +174,8 @@ def fast(args, name, train_loader_bag, val_ds_return_bag):
 
     # Build logger
     print(name, flush=True)
-    writer = SummaryWriter(log_dir=os.path.join("./runs_CAMELYON_withTextLearnable", name))
+    # writer = SummaryWriter(log_dir=os.path.join("./runs_CAMELYON_withTextLearnable", name))
+    writer = SummaryWriter(log_dir=os.path.join(args.exp_dir, name))
 
     ## Build learnable prompt and optimize it
     learnablePrompt_ctx_init = [
@@ -201,9 +208,21 @@ def fast(args, name, train_loader_bag, val_ds_return_bag):
     del model_text, instance_prompt_learner
 
     # MIL_Adapter: 1. unlabeled instance values learnable; 2. only unlabeled instance keys learnable
-    cache_logits, clip_logits, merged_logits, cache_instanceAUC, clip_instanceAUC, merge_instanceAUC = run_tip_adapter_key_value_learnable(
-        cache_keys_unlabeled, cache_values_unlabeled, cache_keys_labeled, cache_values_labeled,
-        test_features, test_labels,
+    (cache_logits, 
+     clip_logits, 
+     merged_logits, 
+     cache_instanceAUC, 
+     clip_instanceAUC, 
+     merge_instanceAUC,
+     cache_keys,
+     cache_values,
+     best_alpha) = run_tip_adapter_key_value_learnable(
+        cache_keys_unlabeled, 
+        cache_values_unlabeled, 
+        cache_keys_labeled, 
+        cache_values_labeled,
+        test_features, 
+        test_labels,
         # clip_weights=classifer_pathology_template_withDescription,  # choice 1: use handcraft prompt
         clip_weights=classifer_pathology_after_optimizing,            # choice 2: use learned prompt
         cache_values_unlabeled_GT=cache_values_unlabeled_GT,
@@ -219,3 +238,32 @@ def fast(args, name, train_loader_bag, val_ds_return_bag):
     writer.add_scalar('cache_BagAUC', cache_bagAUC, 0)
     writer.add_scalar('merge_BagAUC', merged_bagAUC, 0)
     writer.add_scalar('clip_BagAUC', clip_bagAUC, 0)
+    
+    # import pdb; pdb.set_trace()
+    
+    saved_tensor = {
+        "cache_keys": torch.Tensor(cache_keys), 
+        "cache_values": torch.Tensor(cache_values), 
+        "test_features": torch.Tensor(test_features),
+        "test_labels": torch.Tensor(test_labels),
+        "best_alpha": torch.tensor(best_alpha),
+        "clip_weights": torch.Tensor(classifer_pathology_after_optimizing),
+        
+        "cache_logits": torch.Tensor(cache_logits), 
+        "clip_logits": torch.Tensor(clip_logits), 
+        "merged_logits": torch.Tensor(merged_logits), 
+        
+        "instance_corresponding_slide_index": torch.Tensor(val_ds_return_bag.patch_corresponding_slide_index),
+        "instance_corresponding_slide_label": torch.Tensor(val_ds_return_bag.patch_corresponding_slide_label),
+        
+        "cache_instanceAUC": torch.tensor(cache_instanceAUC), 
+        "clip_instanceAUC": torch.tensor(clip_instanceAUC), 
+        "merge_instanceAUC": torch.tensor(merge_instanceAUC),
+        
+        "cache_bagAUC": torch.tensor(cache_bagAUC), 
+        "clip_bagAUC": torch.tensor(clip_bagAUC), 
+        "merge_bagAUC": torch.tensor(merged_bagAUC),
+    }
+    
+    torch.save(saved_tensor, os.path.join(args.exp_dir, name, 'save.pt'))
+    print('Saved!')

@@ -145,6 +145,8 @@ class Active_FewShotBag_FewShotInstance(torch.utils.data.Dataset):
 
 def get_parser():
     parser = argparse.ArgumentParser(description='PyTorch Implementation of Self-Label')
+    parser.add_argument('--exp_dir', type=str, required=True)
+    
     # method
     parser.add_argument('--method', default='fast', type=str, choices=['fast', 'tip_adapter', 'tip_adapter_f'],
                         help='few-shot prompt learning method')
