@@ -242,12 +242,12 @@ def fast(args, name, train_loader_bag, val_ds_return_bag):
     # import pdb; pdb.set_trace()
     
     saved_tensor = {
-        "cache_keys": torch.Tensor(cache_keys), 
-        "cache_values": torch.Tensor(cache_values), 
-        "test_features": torch.Tensor(test_features),
+        # "cache_keys": torch.Tensor(cache_keys), 
+        # "cache_values": torch.Tensor(cache_values), 
+        # "test_features": torch.Tensor(test_features),
         "test_labels": torch.Tensor(test_labels),
-        "best_alpha": torch.tensor(best_alpha),
-        "clip_weights": torch.Tensor(classifer_pathology_after_optimizing),
+        # "best_alpha": torch.tensor(best_alpha),
+        # "clip_weights": torch.Tensor(classifer_pathology_after_optimizing),
         
         "cache_logits": torch.Tensor(cache_logits), 
         "clip_logits": torch.Tensor(clip_logits), 
